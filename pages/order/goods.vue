@@ -1,6 +1,6 @@
 <template>
 	<view style="height: auto;">
-		<cu-custom bgColor="bg-gradual-blue" :isBack="true"><block slot="backText">返回</block><block slot="content">添加商品</block></cu-custom>
+		<cu-custom bgColor="bg-gradual-blue" :isBack="true"><block slot="backText">返回</block><block slot="content">绑定商品</block></cu-custom>
 		<view class="">
 			<view class="padding-xl">
 				<button class="cu-btn block bg-blue margin-tb-sm lg" @tap="scanGoods" style="position: fixed;bottom: 100rpx; width: 86%;"> 扫条形码</button>

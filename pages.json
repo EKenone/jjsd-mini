@@ -9,6 +9,10 @@
 			"style": {}
 		},
 		{
+			"path": "pages/order/addGoods",
+			"style": {}
+		},
+		{
 			"path": "pages/order/bind",
 			"style": {}
 		},

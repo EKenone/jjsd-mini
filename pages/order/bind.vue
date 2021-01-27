@@ -1,7 +1,7 @@
 <template>
 	<view style="height: auto;">
 		<cu-custom bgColor="bg-gradual-blue" :isBack="true"><block slot="backText">返回</block><block slot="content">绑定商品</block></cu-custom>
-			<button class="cu-btn block bg-blue margin-tb-sm" @tap="bindGoods" style="position: fixed;bottom: 50rpx; right: 10rpx;width: 21%;"> 绑定</button>
+		<button class="cu-btn block bg-blue margin-tb-sm" @tap="bindGoods" style="position: fixed;bottom: 50rpx; right: 10rpx;width: 21%;"> 绑定</button>
 		<view class="">
 			<form>
 				<view class="cu-form-group">

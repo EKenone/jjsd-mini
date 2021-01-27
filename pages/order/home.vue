@@ -22,10 +22,15 @@
 		data() {
 			return {
 				elements: [{
-						title: '添加商品',
+						title: '绑定商品',
 						name: 'goods',
 						color: 'cyan',
 						cuIcon: 'newsfill'
+					},{
+						title: '添加商品',
+						name: 'addGoods',
+						color: 'blue',
+						cuIcon: 'colorlens'
 					}
 				],
 			};
