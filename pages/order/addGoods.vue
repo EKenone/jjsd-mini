@@ -17,6 +17,15 @@
 					<button class='cu-btn bg-green shadow' @tap="scanGoods">扫码</button>
 				</view>
 				<view class="cu-form-group">
+					<view class="title">商品类别：</view>
+					<view>
+						{{categoryShow}}
+					</view>
+					<view class="action">
+						<button class="cu-btn bg-green shadow" @tap="showModal" data-target="ChooseModal">选择</button>
+					</view>
+				</view>
+				<view class="cu-form-group">
 					<view class="title">商品单位：</view>
 					<picker @change="unitChange" :value="unitIndex" :range="unitTitle">
 						<view class="picker">
@@ -50,29 +59,6 @@
 						</view>
 					</view>
 				</view>
-				<view class="cu-form-group">
-					<view class="title">商品类别：</view>
-					<view>
-						{{categoryShow}}
-					</view>
-					<view class="action">
-						<button class="cu-btn bg-green shadow" @tap="showModal" data-target="ChooseModal">选择</button>
-					</view>
-				</view>
-				<view class="cu-modal bottom-modal" :class="modalName=='ChooseModal'?'show':''" @tap="hide">
-					<view class="cu-dialog" @tap.stop="">
-						<view class="cu-bar bg-white">
-							<view class="action text-green" @tap="hide">确定</view>
-						</view>
-						<view class="grid col-3 padding-sm">
-							<view v-for="(item,index) in category" class="padding-xs" :key="index">
-								<button class="cu-btn orange md block" :class="item.checked?'bg-blue':'line-blue'" @tap="ChooseCheckbox"
-								 :data-value="item.id"> {{item.title}}
-								</button>
-							</view>
-						</view>
-					</view>
-				</view>
 			</form>
 			<view class="padding-xl">
 				<button class="cu-btn block bg-blue margin-tb-sm lg" @tap="addGoods" style="position: fixed;bottom: 100rpx; width: 86%;"> 添加</button>
@@ -95,6 +81,23 @@
 				</view>
 			</view>
 		</view>
+		<view class="cu-modal" :class="modalName=='hasError'?'show':''">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-white justify-end">
+					<view class="action" @tap="hide">
+						<text class="cuIcon-close text-red"></text>
+					</view>
+				</view>
+				<view class="padding-xl text-red" style="font-size: 16px;">
+					{{err}}
+				</view>
+				<view class="cu-bar bg-white justify-end">
+					<view class="action">
+						<button class="cu-btn bg-green margin-left" @tap="hide">确定</button>
+					</view>
+				</view>
+			</view>
+		</view>
 		<view class="cu-modal" :class="modalName=='scanFail'?'show':''">
 			<view class="cu-dialog">
 				<view class="cu-bar bg-white justify-end">
@@ -112,6 +115,20 @@
 				</view>
 			</view>
 		</view>
+		<view class="cu-modal bottom-modal" :class="modalName=='ChooseModal'?'show':''" @tap="hide">
+			<view class="cu-dialog" @tap.stop="">
+				<view class="cu-bar bg-white">
+					<view class="action text-green" @tap="hide">确定</view>
+				</view>
+				<view class="grid col-3 padding-sm">
+					<view v-for="(item,index) in category" class="padding-xs" :key="index">
+						<button class="cu-btn orange block" :class="item.checked?'bg-blue':'line-blue'" @tap="ChooseCheckbox"
+						 :data-value="item.id"> {{item.title}}
+						</button>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -120,6 +137,7 @@
 	export default {
 		data() {
 			return {
+				err: "",
 				modalName: "",
 				number: "",
 				wholesalePrice: "",
@@ -238,6 +256,25 @@
 				this.form.retail_price = v
 			},
 			addGoods(e) {
+				
+				if (!this.form.name) {
+					this.err = "请填写商品全称"
+					this.modalName = "hasError"
+					return
+				}
+				
+				if (!this.form.short_name) {
+					this.err = "请填写商品简称"
+					this.modalName = "hasError"
+					return
+				}
+				
+				if (!this.form.number) {
+					this.err = "请输入商品编号"
+					this.modalName = "hasError"
+					return
+				}
+				
 				const t = this
 				t.form.category = this.categoryChecked
 				request({
