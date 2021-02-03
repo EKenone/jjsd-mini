@@ -2,7 +2,16 @@
 	import Vue from 'vue'
 	import request from './common/request.js'
 	export default {
-		onLaunch: function() {
+		data() {
+			return {
+				code: '',
+			};
+		},
+		onLaunch: function(options) {
+			
+			const shopId = options.shop_id ? options.shop_id : 1
+			uni.setStorageSync("shop_id", shopId)
+			
 			uni.getSystemInfo({
 				success: function(e) {
 					// #ifndef MP
@@ -25,8 +34,6 @@
 					Vue.prototype.StatusBar = e.statusBarHeight;
 					Vue.prototype.CustomBar = e.statusBarHeight + e.titleBarHeight;
 					// #endif
-					
-					
 				}
 			})
 			
@@ -36,28 +43,27 @@
 						uri: 'wx-fans/get-session',
 						data: {code: res.code},
 					}).then(res => {
-						console.log(res)
 						const data = res.data
 						uni.setStorageSync("token", data.token)
 						uni.setStorageSync("session_key", data.session_key)
 						uni.setStorageSync("fans_id", data.fans_id)
-						uni.getUserInfo({
-							withCredentials: true,
-							lang: 'zh_CN',
-							success(res) {
-								request({
-									method: "POST",
-									uri: 'wx-fans/set-user-info',
-									data: {
-										encrypted_data: res.encryptedData,
-										iv: res.iv,
-										signature: res.signature,
-										session_key: data.session_key
-									}
-								})
-								console.log(res)
-							}
-						})
+						// uni.getUserInfo({
+						// 	withCredentials: true,
+						// 	lang: 'zh_CN',
+						// 	success(res) {
+						// 		request({
+						// 			method: "POST",
+						// 			uri: 'wx-fans/set-user-info',
+						// 			data: {
+						// 				encrypted_data: res.encryptedData,
+						// 				iv: res.iv,
+						// 				signature: res.signature,
+						// 				session_key: data.session_key
+						// 			}
+						// 		})
+						// 		console.log(res)
+						// 	}
+						// })
 					})
 				}
 			})

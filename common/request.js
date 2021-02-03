@@ -12,6 +12,9 @@ const request = options => {
 			}
 			
     }
+		
+		data.shop_id = uni.getStorageSync('shop_id')
+		
     uni.request({
       header: head,
       ...options,

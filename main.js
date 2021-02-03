@@ -16,7 +16,6 @@ Vue.component('order',order)
 import cuCustom from './colorui/components/cu-custom.vue'
 Vue.component('cu-custom',cuCustom)
 
-
 Vue.config.productionTip = false
 Vue.prototype.apiHost = 'https://mini.hosiyi.com/'
 

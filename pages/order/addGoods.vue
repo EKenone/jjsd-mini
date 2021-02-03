@@ -9,7 +9,7 @@
 				</view>
 				<view class="cu-form-group">
 					<view class="title">商品简称：</view>
-					<input placeholder="商品简称" @change="sortNameChange" name="short_name"></input>
+					<input placeholder="商品简称" @change="shortNameChange" name="short_name"></input>
 				</view>
 				<view class="cu-form-group">
 					<view class="title">商品编码：</view>
@@ -41,6 +41,38 @@
 						</view>
 					</view>
 				</view>
+				<view class="cu-form-group">
+					<view class="title">零售价：</view>
+					<input placeholder="请输入零售价" type="digit" :value="retailPrice" @change="retailPriceChange" name="retail_price"></input>
+					<view class="cu-capsule radius">
+						<view class="cu-tag bg-blue">
+							元 
+						</view>
+					</view>
+				</view>
+				<view class="cu-form-group">
+					<view class="title">商品类别：</view>
+					<view>
+						{{categoryShow}}
+					</view>
+					<view class="action">
+						<button class="cu-btn bg-green shadow" @tap="showModal" data-target="ChooseModal">选择</button>
+					</view>
+				</view>
+				<view class="cu-modal bottom-modal" :class="modalName=='ChooseModal'?'show':''" @tap="hide">
+					<view class="cu-dialog" @tap.stop="">
+						<view class="cu-bar bg-white">
+							<view class="action text-green" @tap="hide">确定</view>
+						</view>
+						<view class="grid col-3 padding-sm">
+							<view v-for="(item,index) in category" class="padding-xs" :key="index">
+								<button class="cu-btn orange md block" :class="item.checked?'bg-blue':'line-blue'" @tap="ChooseCheckbox"
+								 :data-value="item.id"> {{item.title}}
+								</button>
+							</view>
+						</view>
+					</view>
+				</view>
 			</form>
 			<view class="padding-xl">
 				<button class="cu-btn block bg-blue margin-tb-sm lg" @tap="addGoods" style="position: fixed;bottom: 100rpx; width: 86%;"> 添加</button>
@@ -49,7 +81,7 @@
 		<view class="cu-modal" :class="modalName=='bindSuccess'?'show':''">
 			<view class="cu-dialog">
 				<view class="cu-bar bg-white justify-end">
-					<view class="action" @tap="hideModal">
+					<view class="action" @tap="hide">
 						<text class="cuIcon-close text-red"></text>
 					</view>
 				</view>
@@ -59,6 +91,23 @@
 				<view class="cu-bar bg-white justify-end">
 					<view class="action">
 						<button class="cu-btn bg-green margin-left" @tap="back">确定</button>
+					</view>
+				</view>
+			</view>
+		</view>
+		<view class="cu-modal" :class="modalName=='scanFail'?'show':''">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-white justify-end">
+					<view class="action" @tap="hide">
+						<text class="cuIcon-close text-red"></text>
+					</view>
+				</view>
+				<view class="padding-xl text-green" style="font-size: 16px;">
+					该条码已存在，请勿重复添加
+				</view>
+				<view class="cu-bar bg-white justify-end">
+					<view class="action">
+						<button class="cu-btn bg-green margin-left" @tap="hide">确定</button>
 					</view>
 				</view>
 			</view>
@@ -74,30 +123,83 @@
 				modalName: "",
 				number: "",
 				wholesalePrice: "",
+				retailPrice: "",
 				unitIndex: -1,
 				unitTitle: [],
 				formatIndex: -1,
 				formatTitle: [],
+				category: [],
+				categoryChecked:[],
+				categoryShow: "",
 				form: {}
 			}
 		},
 		onShow() {
 			request({
-				uri: 'goods-format/list',
+				uri: 'goods/attr',
 				data: {},
 			}).then(res => {
-				console.log(11)
-				this.formatTitle = res.data
+				this.formatTitle = res.data.format
+				this.unitTitle = res.data.unit
+				let category = res.data.category
+				category.forEach(function(item){
+					item.checked = false
+				})
+				
+				this.category = category
 			})
 			
-			request({
-				uri: 'goods-unit/list',
-				data: {},
-			}).then(res => {
-				this.unitTitle = res.data
-			})
 		},
 		methods: {
+			showModal(e) {
+				this.modalName = e.currentTarget.dataset.target
+			},
+			ChooseCheckbox(e) {
+				let items = this.category;
+				let values = e.currentTarget.dataset.value;
+				let checked;
+				
+				for (let i = 0, lenI = items.length; i < lenI; ++i) {
+					if (items[i].id == values) {
+						items[i].checked = !items[i].checked;
+						checked = items[i].checked
+						break
+					}
+				}
+				
+				let categoryChecked = this.categoryChecked
+				let l = categoryChecked.length
+				if (checked) {
+					categoryChecked.push(values)
+				} else {
+					for (let i = 0; i < l; i++) {
+						if (categoryChecked[i] == values) {
+							categoryChecked.splice(i, 1);
+						}
+					}
+				}
+				this.categoryChecked = categoryChecked
+				
+				let showCheckedId = categoryChecked[0]
+				if (!showCheckedId) {
+					this.categoryShow = ""
+				} else {
+					for (let i = 0, lenI = items.length; i < lenI; ++i) {
+						if (items[i].id == showCheckedId) {
+							this.categoryShow = items[i].title
+							break
+						}
+					}
+				}
+				
+				if (categoryChecked.length > 1) {
+					this.categoryShow = this.categoryShow + "等"
+				}
+				
+			},
+			hide(){
+				this.modalName = ''
+			},
 			back(){
 				this.modalName = ''
 				uni.navigateBack()
@@ -105,8 +207,8 @@
 			nameChange(e) {
 				this.form.name = e.detail.value
 			},
-			sortNameChange(e) {
-				this.form.sort_name = e.detail.value
+			shortNameChange(e) {
+				this.form.short_name = e.detail.value
 			},
 			numberChange(e){
 				this.form.number = e.detail.value
@@ -120,12 +222,24 @@
 				this.form.format = this.formatTitle[e.detail.value]
 			},
 			wholesalePriceChange(e) {
+				if (!e.detail.value) {
+					return
+				}
 				const v = parseFloat(e.detail.value).toFixed(2)
 				this.wholesalePrice = v
 				this.form.wholesale_price = v
 			},
+			retailPriceChange(e) {
+				if (!e.detail.value) {
+					return
+				}
+				const v = parseFloat(e.detail.value).toFixed(2)
+				this.retailPrice = v
+				this.form.retail_price = v
+			},
 			addGoods(e) {
 				const t = this
+				t.form.category = this.categoryChecked
 				request({
 					uri: 'goods/add',
 					data: t.form,
@@ -139,8 +253,21 @@
 				const t = this
 				uni.scanCode({
 					success(res) {
-						t.form.number = res.result
-						t.number = res.result
+						request({
+							method: "GET",
+							uri: 'goods/number',
+							data: {
+								number: res.result
+								// number: '6928804010381'
+							}
+						}).then(r => {
+							if (r.data != null) {
+								t.modalName = 'scanFail'
+							} else {
+								t.form.number = res.result
+								t.number = res.result
+							}
+						})
 					}
 				})
 			}
